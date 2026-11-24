@@ -56,7 +56,12 @@ The page `index.html` lets you run every step yourself:
 | `tests/test_smart_dorm.py` | 11 unit tests of the Python algorithms |
 | `tests/consistency_test.js` | 186 checks that the web app gives exactly the same results as Python, over 6 parameter sets |
 | `make_figure.py`, `smart_dorm_overview.png` | Overview figure |
-| `docs/` | Technical report, slides, AI usage declaration, team contribution statement |
+| `docs/Smart_Dorm_Technical_Report_Bolat_Rauan.docx` / `.pdf` | Technical report |
+| `docs/Smart_Dorm_Presentation_Bolat_Rauan.pptx` | 6-slide presentation (speaker notes included) |
+| `docs/Smart_Dorm_Demo_Video_Bolat_Rauan.mp4` | 2-minute demo video (AI narration, subtitles) |
+| `docs/AI_Usage_Declaration_Bolat_Rauan.docx` / `.pdf` | AI usage declaration |
+| `docs/Team_Contribution_Statement_Bolat_Rauan.docx` / `.pdf` | Team contribution statement |
+| `docs/build_docs.py`, `docs/video/make_video.py` | Scripts that build the documents and the video |
 
 ## Testing
 
