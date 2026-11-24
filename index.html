@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Smart Dorm Energy Saver</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Onest:wght@400;500;600;700&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<style>
+/* control panel: pipeline header, four algorithm cards (plan → belief → action → day), heat = warm orange, off = cold blue */
+:root {
+  --bg: #f3f5f8; --card: #ffffff; --ink: #18212d; --muted: #5d6a7a; --line: #dde3ea;
+  --heat: #d9622b; --heat-soft: #fbe9df; --cold: #2b74b8; --cold-soft: #e2edf8; --idle: #c9d1db;
+  --good: #23885a;
+  --display: "Onest", "Segoe UI", system-ui, sans-serif; --mono: "JetBrains Mono", Consolas, monospace;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #0f141b; --card: #171e28; --ink: #e6ecf3; --muted: #9aa7b6; --line: #273242;
+    --heat: #f08a52; --heat-soft: #3a2418; --cold: #6aa8e6; --cold-soft: #18293c; --idle: #3a4554;
+    --good: #5cc28a; color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #0f141b; --card: #171e28; --ink: #e6ecf3; --muted: #9aa7b6; --line: #273242;
+  --heat: #f08a52; --heat-soft: #3a2418; --cold: #6aa8e6; --cold-soft: #18293c; --idle: #3a4554;
+  --good: #5cc28a; color-scheme: dark;
+}
+* { box-sizing: border-box; }
+body { margin: 0; background: var(--bg); color: var(--ink); font: 16px/1.5 var(--display); }
+.page { max-width: 1240px; margin: 0 auto; padding: 24px 16px 48px; display: grid; gap: 18px; }
+header { display: grid; gap: 10px; }
+h1 { font-size: clamp(28px, 4vw, 40px); line-height: 1.1; margin: 0; text-wrap: balance; }
+.sub { color: var(--muted); margin: 0; max-width: 80ch; }
+.pipe { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; font-size: 14px; }
+.pipe span.step { background: var(--card); border: 1px solid var(--line); border-radius: 999px; padding: 4px 12px; }
+.pipe b { color: var(--heat); }
+.grid3 { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 18px; }
+.card { background: var(--card); border: 1px solid var(--line); border-radius: 14px; padding: 18px; display: grid; gap: 12px; align-content: start; min-width: 0; }
+.card h2 { font-size: 19px; margin: 0; display: flex; gap: 10px; align-items: baseline; }
+.num { font: 600 13px var(--mono); color: #fff; background: var(--heat); border-radius: 6px; padding: 2px 7px; }
+.tag { font: 12px var(--mono); color: var(--muted); }
+.why { font-size: 14px; color: var(--muted); margin: 0; }
+.row { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+button, select, input[type=number] { font: inherit; font-size: 14px; border: 1px solid var(--line); background: var(--card); color: var(--ink); border-radius: 8px; padding: 6px 12px; }
+button { cursor: pointer; }
+button.primary { background: var(--heat); border-color: var(--heat); color: #fff; font-weight: 600; }
+button[aria-pressed="true"] { background: var(--ink); color: var(--card); border-color: var(--ink); }
+button:focus-visible, select:focus-visible, input:focus-visible { outline: 2px solid var(--cold); outline-offset: 2px; }
+input[type=number] { width: 70px; padding: 4px 8px; font-family: var(--mono); }
+label.slider { display: grid; grid-template-columns: 1fr 56px; gap: 2px 10px; font-size: 14px; }
+label.slider input { grid-column: 1 / -1; width: 100%; accent-color: var(--heat); }
+label.slider output { font-family: var(--mono); text-align: right; }
+.calc { font: 13px/1.7 var(--mono); background: var(--bg); border-radius: 8px; padding: 10px 12px; overflow-x: auto; white-space: pre; }
+.calc b { color: var(--heat); }
+.out { border-radius: 10px; padding: 10px 14px; background: var(--heat-soft); font-weight: 600; }
+.out.off { background: var(--cold-soft); }
+.out small { display: block; font-weight: 400; color: var(--muted); }
+.big { font-size: 26px; line-height: 1.1; }
+table { width: 100%; border-collapse: collapse; font-size: 14px; }
+th, td { padding: 6px 8px; border-bottom: 1px solid var(--line); text-align: left; }
+th { color: var(--muted); font-weight: 500; }
+td.n, th.n { text-align: right; font-family: var(--mono); font-variant-numeric: tabular-nums; }
+tr.best td { background: var(--heat-soft); font-weight: 600; }
+tr.cur td:first-child { box-shadow: inset 3px 0 var(--heat); }
+svg text { fill: var(--muted); font: 12px var(--mono); }
+.log { font: 13px/1.6 var(--mono); margin: 0; padding-left: 18px; }
+.qbars { display: grid; gap: 8px; }
+.qbar { display: grid; grid-template-columns: 70px 1fr 64px; gap: 8px; align-items: center; font-size: 14px; }
+.qbar .track { position: relative; height: 18px; background: var(--bg); border-radius: 4px; }
+.qbar .zero { position: absolute; left: 50%; top: -3px; bottom: -3px; width: 1px; background: var(--muted); }
+.qbar .fill { position: absolute; top: 0; bottom: 0; border-radius: 4px; }
+.qbar .v { font-family: var(--mono); text-align: right; }
+.wide { display: grid; grid-template-columns: minmax(0, 1fr); gap: 12px; }
+.hours { display: grid; grid-template-columns: repeat(24, minmax(0, 1fr)); gap: 3px; }
+.hour { border-radius: 6px; border: 1px solid var(--line); background: var(--bg); padding: 4px 0 6px; display: grid; justify-items: center; gap: 2px; font: 11px var(--mono); color: var(--muted); cursor: pointer; min-width: 0; }
+.hour .st { width: 70%; height: 22px; border-radius: 4px; background: var(--idle); }
+.hour.on .st { background: var(--heat); }
+.hour.off .st { background: var(--cold); }
+.hour .sn { font-size: 13px; line-height: 1; }
+.hour:hover { border-color: var(--ink); }
+.legend { display: flex; flex-wrap: wrap; gap: 14px; font-size: 13px; color: var(--muted); }
+.legend i { display: inline-block; width: 12px; height: 12px; border-radius: 3px; vertical-align: -1px; margin-right: 5px; }
+.tiles { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 10px; }
+.tile { border: 1px solid var(--line); border-radius: 10px; padding: 10px 12px; }
+.tile b { display: block; font-size: 24px; font-variant-numeric: tabular-nums; }
+.tile span { font-size: 13px; color: var(--muted); }
+.tile.save b { color: var(--good); }
+.bits { display: grid; grid-template-columns: repeat(24, minmax(0, 1fr)); gap: 2px; }
+.bits i { height: 14px; border-radius: 2px; background: var(--idle); }
+.bits i.on { background: var(--heat); }
+.scroll { overflow-x: auto; }
+footer { color: var(--muted); font-size: 13px; }
+@media (max-width: 1000px) { .grid3 { grid-template-columns: 1fr; } .tiles { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+@media (max-width: 640px) {
+  .hours, .bits { grid-template-columns: repeat(12, minmax(0, 1fr)); }
+}
+@media (prefers-reduced-motion: reduce) { * { transition: none !important; } }
+</style>
+</head>
+<body>
+<div class="page">
+<header>
+  <h1>Smart Dorm Energy Saver</h1>
+  <p class="sub">An AI agent for an electric heater in an Astana dorm room in winter. It plans when to heat, checks whether the student is home, and switches the heater off when the room is probably empty.</p>
+  <div class="pipe" aria-label="How the three algorithms connect">
+    <span class="step"><b>1</b> Hill climbing → daily plan</span>→
+    <span class="step"><b>2</b> Bayes → P(student is home)</span>→
+    <span class="step"><b>3</b> MDP → Keep On / Turn Off</span>→
+    <span class="step"><b>4</b> One day → tenge saved</span>
+  </div>
+</header>
+
+<div class="grid3">
+  <!-- 1. HILL CLIMBING -->
+  <section class="card" aria-labelledby="h1t">
+    <h2 id="h1t"><span class="num">1</span>Plan the day <span class="tag">hill climbing</span></h2>
+    <p class="why">Cost of a schedule = electricity (hours × 37.5 tg) + discomfort penalty. Move to the cheaper neighbour until none is cheaper.</p>
+    <div class="row">
+      <label for="hcStart">Start at</label>
+      <select id="hcStart"></select>
+      <button class="primary" id="hcRun">Run hill climbing</button>
+    </div>
+    <svg id="hcChart" viewBox="0 0 360 190" role="img" aria-label="Cost of each schedule and the hill-climbing path"></svg>
+    <ol class="log" id="hcLog"></ol>
+    <div class="out" id="hcOut"></div>
+  </section>
+
+  <!-- 2. BAYES -->
+  <section class="card" aria-labelledby="h2t">
+    <h2 id="h2t"><span class="num">2</span>Is the student home? <span class="tag">Bayes</span></h2>
+    <p class="why">The heater is on by plan, and the motion sensor reports. Bayes' rule updates the belief.</p>
+    <div class="row" role="group" aria-label="Sensor reading">
+      <button id="obsNo" aria-pressed="true">No motion for 30 min</button>
+      <button id="obsYes" aria-pressed="false">Motion seen</button>
+    </div>
+    <label class="slider" for="prior">Prior P(Home) <output id="priorV"></output><input type="range" id="prior" min="0.05" max="0.95" step="0.05"></label>
+    <label class="slider" for="lh">P(no motion | Home) <output id="lhV"></output><input type="range" id="lh" min="0.05" max="0.95" step="0.05"></label>
+    <label class="slider" for="le">P(no motion | Empty) <output id="leV"></output><input type="range" id="le" min="0.05" max="0.99" step="0.01"></label>
+    <div class="calc" id="bayesCalc"></div>
+    <div class="out" id="bayesOut"></div>
+  </section>
+
+  <!-- 3. MDP -->
+  <section class="card" aria-labelledby="h3t">
+    <h2 id="h3t"><span class="num">3</span>Keep on or turn off? <span class="tag">MDP</span></h2>
+    <p class="why">Rewards per hour for each state and action. The belief from step 2 weights them: Q(a) = Σ b(s)·R(s,a).</p>
+    <div class="scroll"><table>
+      <thead><tr><th>Reward</th><th class="n">Home</th><th class="n">Empty</th></tr></thead>
+      <tbody>
+        <tr><td>Keep On</td><td class="n"><input type="number" id="rHK" aria-label="Reward Keep On, Home"></td><td class="n"><input type="number" id="rEK" aria-label="Reward Keep On, Empty"></td></tr>
+        <tr><td>Turn Off</td><td class="n"><input type="number" id="rHO" aria-label="Reward Turn Off, Home"></td><td class="n"><input type="number" id="rEO" aria-label="Reward Turn Off, Empty"></td></tr>
+      </tbody>
+    </table></div>
+    <div class="calc" id="mdpCalc"></div>
+    <div class="qbars" id="qbars"></div>
+    <div class="out" id="mdpOut"></div>
+  </section>
+</div>
+
+<!-- 4. DAY -->
+<section class="card wide" aria-labelledby="h4t">
+  <h2 id="h4t"><span class="num">4</span>One winter day <span class="tag">plan + Bayes + MDP every hour</span></h2>
+  <p class="why">Coloured hours are in the hill-climbing plan. For each one, the sensor reading goes through Bayes and the MDP. Click an hour to flip its sensor reading.</p>
+  <div class="row" role="group" aria-label="Day presets">
+    <button id="pTypical">Typical day</button>
+    <button id="pAway">Away all evening</button>
+    <button id="pHome">Home all day</button>
+  </div>
+  <div class="hours" id="hours"></div>
+  <div class="legend"><span><i style="background:var(--heat)"></i>heater on</span><span><i style="background:var(--cold)"></i>agent turned it off</span><span><i style="background:var(--idle)"></i>not in plan</span><span>● motion &nbsp;○ no motion</span></div>
+  <div class="tiles" id="tiles"></div>
+  <div class="scroll"><table id="dayTable"></table></div>
+</section>
+
+<!-- BONUS -->
+<section class="card wide" aria-labelledby="h5t">
+  <h2 id="h5t"><span class="num">+</span>Bonus: plan all 24 hours <span class="tag">hill climbing with random restarts</span></h2>
+  <p class="why">Each hour is on or off: 2²⁴ ≈ 16.8 million schedules, too many to check. A neighbour flips one hour. Cost = energy + discomfort when home and cold + 15 tg per switch. Ten random starts guard against local optima.</p>
+  <div class="row"><button id="bonusRun" class="primary">Run 10 random restarts</button><span class="tag" id="bonusSeed"></span></div>
+  <div class="scroll"><table id="bonusTable"></table></div>
+  <div class="out" id="bonusOut"></div>
+</section>
+
+<footer>Bolat Rauan · Stream 2, Practice 2 · AI Fundamentals final project. All numbers are hypothetical toy-model assumptions. The page runs the same algorithms as <code>smart_dorm.py</code>; <code>tests/consistency_test.js</code> checks that both give identical results.</footer>
+</div>
+<script src="smartdorm.js"></script>
+<script src="app.js"></script>
+</body>
+</html>

@@ -1,0 +1,744 @@
+[
+ {
+  "case": {},
+  "hill": {
+   "0": [
+    8,
+    [
+     4,
+     6,
+     8
+    ]
+   ],
+   "1": [
+    8,
+    [
+     6,
+     8
+    ]
+   ],
+   "2": [
+    8,
+    [
+     8
+    ]
+   ],
+   "3": [
+    8,
+    [
+     10,
+     8
+    ]
+   ],
+   "4": [
+    8,
+    [
+     12,
+     10,
+     8
+    ]
+   ]
+  },
+  "bayes": {
+   "True": {
+    "prior": 0.6,
+    "like_home": 0.7,
+    "like_empty": 0.050000000000000044,
+    "joint_home": 0.42,
+    "joint_empty": 0.020000000000000018,
+    "evidence": 0.44,
+    "posterior": 0.9545454545454545
+   },
+   "False": {
+    "prior": 0.6,
+    "like_home": 0.3,
+    "like_empty": 0.95,
+    "joint_home": 0.18,
+    "joint_empty": 0.38,
+    "evidence": 0.56,
+    "posterior": 0.3214285714285714
+   }
+  },
+  "mdp": {
+   "0.05": {
+    "action": "Turn Off",
+    "q": {
+     "Keep On": -3.5,
+     "Turn Off": 3.4
+    },
+    "threshold": 0.36363636363636365
+   },
+   "0.3": {
+    "action": "Turn Off",
+    "q": {
+     "Keep On": -1.0,
+     "Turn Off": 0.3999999999999999
+    },
+    "threshold": 0.36363636363636365
+   },
+   "0.364": {
+    "action": "Keep On",
+    "q": {
+     "Keep On": -0.3599999999999999,
+     "Turn Off": -0.3679999999999999
+    },
+    "threshold": 0.36363636363636365
+   },
+   "0.5": {
+    "action": "Keep On",
+    "q": {
+     "Keep On": 1.0,
+     "Turn Off": -2.0
+    },
+    "threshold": 0.36363636363636365
+   },
+   "0.95": {
+    "action": "Keep On",
+    "q": {
+     "Keep On": 5.499999999999999,
+     "Turn Off": -7.3999999999999995
+    },
+    "threshold": 0.36363636363636365
+   }
+  },
+  "day": {
+   "best": 8,
+   "planned": 300.0,
+   "actual": 187.5,
+   "actions": [
+    "Keep On",
+    "Keep On",
+    "Keep On",
+    "Turn Off",
+    "Turn Off",
+    "Keep On",
+    "Keep On",
+    "Turn Off"
+   ]
+  },
+  "bonus_best": 692.2
+ },
+ {
+  "case": {
+   "PRIOR_HOME": 0.9
+  },
+  "hill": {
+   "0": [
+    8,
+    [
+     4,
+     6,
+     8
+    ]
+   ],
+   "1": [
+    8,
+    [
+     6,
+     8
+    ]
+   ],
+   "2": [
+    8,
+    [
+     8
+    ]
+   ],
+   "3": [
+    8,
+    [
+     10,
+     8
+    ]
+   ],
+   "4": [
+    8,
+    [
+     12,
+     10,
+     8
+    ]
+   ]
+  },
+  "bayes": {
+   "True": {
+    "prior": 0.9,
+    "like_home": 0.7,
+    "like_empty": 0.050000000000000044,
+    "joint_home": 0.63,
+    "joint_empty": 0.005000000000000004,
+    "evidence": 0.635,
+    "posterior": 0.9921259842519685
+   },
+   "False": {
+    "prior": 0.9,
+    "like_home": 0.3,
+    "like_empty": 0.95,
+    "joint_home": 0.27,
+    "joint_empty": 0.09499999999999997,
+    "evidence": 0.365,
+    "posterior": 0.7397260273972603
+   }
+  },
+  "mdp": {
+   "0.05": {
+    "action": "Turn Off",
+    "q": {
+     "Keep On": -3.5,
+     "Turn Off": 3.4
+    },
+    "threshold": 0.36363636363636365
+   },
+   "0.3": {
+    "action": "Turn Off",
+    "q": {
+     "Keep On": -1.0,
+     "Turn Off": 0.3999999999999999
+    },
+    "threshold": 0.36363636363636365
+   },
+   "0.364": {
+    "action": "Keep On",
+    "q": {
+     "Keep On": -0.3599999999999999,
+     "Turn Off": -0.3679999999999999
+    },
+    "threshold": 0.36363636363636365
+   },
+   "0.5": {
+    "action": "Keep On",
+    "q": {
+     "Keep On": 1.0,
+     "Turn Off": -2.0
+    },
+    "threshold": 0.36363636363636365
+   },
+   "0.95": {
+    "action": "Keep On",
+    "q": {
+     "Keep On": 5.499999999999999,
+     "Turn Off": -7.3999999999999995
+    },
+    "threshold": 0.36363636363636365
+   }
+  },
+  "day": {
+   "best": 8,
+   "planned": 300.0,
+   "actual": 300.0,
+   "actions": [
+    "Keep On",
+    "Keep On",
+    "Keep On",
+    "Keep On",
+    "Keep On",
+    "Keep On",
+    "Keep On",
+    "Keep On"
+   ]
+  },
+  "bonus_best": 692.2
+ },
+ {
+  "case": {
+   "PRIOR_HOME": 0.2,
+   "P_NOMOTION_IF_HOME": 0.5
+  },
+  "hill": {
+   "0": [
+    8,
+    [
+     4,
+     6,
+     8
+    ]
+   ],
+   "1": [
+    8,
+    [
+     6,
+     8
+    ]
+   ],
+   "2": [
+    8,
+    [
+     8
+    ]
+   ],
+   "3": [
+    8,
+    [
+     10,
+     8
+    ]
+   ],
+   "4": [
+    8,
+    [
+     12,
+     10,
+     8
+    ]
+   ]
+  },
+  "bayes": {
+   "True": {
+    "prior": 0.2,
+    "like_home": 0.5,
+    "like_empty": 0.050000000000000044,
+    "joint_home": 0.1,
+    "joint_empty": 0.040000000000000036,
+    "evidence": 0.14000000000000004,
+    "posterior": 0.7142857142857141
+   },
+   "False": {
+    "prior": 0.2,
+    "like_home": 0.5,
+    "like_empty": 0.95,
+    "joint_home": 0.1,
+    "joint_empty": 0.76,
+    "evidence": 0.86,
+    "posterior": 0.11627906976744187
+   }
+  },
+  "mdp": {
+   "0.05": {
+    "action": "Turn Off",
+    "q": {
+     "Keep On": -3.5,
+     "Turn Off": 3.4
+    },
+    "threshold": 0.36363636363636365
+   },
+   "0.3": {
+    "action": "Turn Off",
+    "q": {
+     "Keep On": -1.0,
+     "Turn Off": 0.3999999999999999
+    },
+    "threshold": 0.36363636363636365
+   },
+   "0.364": {
+    "action": "Keep On",
+    "q": {
+     "Keep On": -0.3599999999999999,
+     "Turn Off": -0.3679999999999999
+    },
+    "threshold": 0.36363636363636365
+   },
+   "0.5": {
+    "action": "Keep On",
+    "q": {
+     "Keep On": 1.0,
+     "Turn Off": -2.0
+    },
+    "threshold": 0.36363636363636365
+   },
+   "0.95": {
+    "action": "Keep On",
+    "q": {
+     "Keep On": 5.499999999999999,
+     "Turn Off": -7.3999999999999995
+    },
+    "threshold": 0.36363636363636365
+   }
+  },
+  "day": {
+   "best": 8,
+   "planned": 300.0,
+   "actual": 187.5,
+   "actions": [
+    "Keep On",
+    "Keep On",
+    "Keep On",
+    "Turn Off",
+    "Turn Off",
+    "Keep On",
+    "Keep On",
+    "Turn Off"
+   ]
+  },
+  "bonus_best": 692.2
+ },
+ {
+  "case": {
+   "P_NOMOTION_IF_EMPTY": 0.7,
+   "REWARD": {
+    "homeKeep": 6,
+    "emptyKeep": -10,
+    "homeOff": -8,
+    "emptyOff": 4
+   }
+  },
+  "hill": {
+   "0": [
+    8,
+    [
+     4,
+     6,
+     8
+    ]
+   ],
+   "1": [
+    8,
+    [
+     6,
+     8
+    ]
+   ],
+   "2": [
+    8,
+    [
+     8
+    ]
+   ],
+   "3": [
+    8,
+    [
+     10,
+     8
+    ]
+   ],
+   "4": [
+    8,
+    [
+     12,
+     10,
+     8
+    ]
+   ]
+  },
+  "bayes": {
+   "True": {
+    "prior": 0.6,
+    "like_home": 0.7,
+    "like_empty": 0.30000000000000004,
+    "joint_home": 0.42,
+    "joint_empty": 0.12000000000000002,
+    "evidence": 0.54,
+    "posterior": 0.7777777777777777
+   },
+   "False": {
+    "prior": 0.6,
+    "like_home": 0.3,
+    "like_empty": 0.7,
+    "joint_home": 0.18,
+    "joint_empty": 0.27999999999999997,
+    "evidence": 0.45999999999999996,
+    "posterior": 0.391304347826087
+   }
+  },
+  "mdp": {
+   "0.05": {
+    "action": "Turn Off",
+    "q": {
+     "Keep On": -9.2,
+     "Turn Off": 3.4
+    },
+    "threshold": 0.5
+   },
+   "0.3": {
+    "action": "Turn Off",
+    "q": {
+     "Keep On": -5.2,
+     "Turn Off": 0.3999999999999999
+    },
+    "threshold": 0.5
+   },
+   "0.364": {
+    "action": "Turn Off",
+    "q": {
+     "Keep On": -4.176,
+     "Turn Off": -0.3679999999999999
+    },
+    "threshold": 0.5
+   },
+   "0.5": {
+    "action": "Keep On",
+    "q": {
+     "Keep On": -2.0,
+     "Turn Off": -2.0
+    },
+    "threshold": 0.5
+   },
+   "0.95": {
+    "action": "Keep On",
+    "q": {
+     "Keep On": 5.199999999999999,
+     "Turn Off": -7.3999999999999995
+    },
+    "threshold": 0.5
+   }
+  },
+  "day": {
+   "best": 8,
+   "planned": 300.0,
+   "actual": 187.5,
+   "actions": [
+    "Keep On",
+    "Keep On",
+    "Keep On",
+    "Turn Off",
+    "Turn Off",
+    "Keep On",
+    "Keep On",
+    "Turn Off"
+   ]
+  },
+  "bonus_best": 692.2
+ },
+ {
+  "case": {
+   "DISCOMFORT": {
+    "4": 100,
+    "6": 50,
+    "8": 40,
+    "10": 30,
+    "12": 25
+   }
+  },
+  "hill": {
+   "0": [
+    4,
+    [
+     4
+    ]
+   ],
+   "1": [
+    4,
+    [
+     6,
+     4
+    ]
+   ],
+   "2": [
+    4,
+    [
+     8,
+     6,
+     4
+    ]
+   ],
+   "3": [
+    4,
+    [
+     10,
+     8,
+     6,
+     4
+    ]
+   ],
+   "4": [
+    4,
+    [
+     12,
+     10,
+     8,
+     6,
+     4
+    ]
+   ]
+  },
+  "bayes": {
+   "True": {
+    "prior": 0.6,
+    "like_home": 0.7,
+    "like_empty": 0.050000000000000044,
+    "joint_home": 0.42,
+    "joint_empty": 0.020000000000000018,
+    "evidence": 0.44,
+    "posterior": 0.9545454545454545
+   },
+   "False": {
+    "prior": 0.6,
+    "like_home": 0.3,
+    "like_empty": 0.95,
+    "joint_home": 0.18,
+    "joint_empty": 0.38,
+    "evidence": 0.56,
+    "posterior": 0.3214285714285714
+   }
+  },
+  "mdp": {
+   "0.05": {
+    "action": "Turn Off",
+    "q": {
+     "Keep On": -3.5,
+     "Turn Off": 3.4
+    },
+    "threshold": 0.36363636363636365
+   },
+   "0.3": {
+    "action": "Turn Off",
+    "q": {
+     "Keep On": -1.0,
+     "Turn Off": 0.3999999999999999
+    },
+    "threshold": 0.36363636363636365
+   },
+   "0.364": {
+    "action": "Keep On",
+    "q": {
+     "Keep On": -0.3599999999999999,
+     "Turn Off": -0.3679999999999999
+    },
+    "threshold": 0.36363636363636365
+   },
+   "0.5": {
+    "action": "Keep On",
+    "q": {
+     "Keep On": 1.0,
+     "Turn Off": -2.0
+    },
+    "threshold": 0.36363636363636365
+   },
+   "0.95": {
+    "action": "Keep On",
+    "q": {
+     "Keep On": 5.499999999999999,
+     "Turn Off": -7.3999999999999995
+    },
+    "threshold": 0.36363636363636365
+   }
+  },
+  "day": {
+   "best": 4,
+   "planned": 150.0,
+   "actual": 112.5,
+   "actions": [
+    "Keep On",
+    "Keep On",
+    "Keep On",
+    "Turn Off"
+   ]
+  },
+  "bonus_best": 692.2
+ },
+ {
+  "case": {
+   "REWARD": {
+    "homeKeep": 6,
+    "emptyKeep": -4,
+    "homeOff": -20,
+    "emptyOff": 4
+   }
+  },
+  "hill": {
+   "0": [
+    8,
+    [
+     4,
+     6,
+     8
+    ]
+   ],
+   "1": [
+    8,
+    [
+     6,
+     8
+    ]
+   ],
+   "2": [
+    8,
+    [
+     8
+    ]
+   ],
+   "3": [
+    8,
+    [
+     10,
+     8
+    ]
+   ],
+   "4": [
+    8,
+    [
+     12,
+     10,
+     8
+    ]
+   ]
+  },
+  "bayes": {
+   "True": {
+    "prior": 0.6,
+    "like_home": 0.7,
+    "like_empty": 0.050000000000000044,
+    "joint_home": 0.42,
+    "joint_empty": 0.020000000000000018,
+    "evidence": 0.44,
+    "posterior": 0.9545454545454545
+   },
+   "False": {
+    "prior": 0.6,
+    "like_home": 0.3,
+    "like_empty": 0.95,
+    "joint_home": 0.18,
+    "joint_empty": 0.38,
+    "evidence": 0.56,
+    "posterior": 0.3214285714285714
+   }
+  },
+  "mdp": {
+   "0.05": {
+    "action": "Turn Off",
+    "q": {
+     "Keep On": -3.5,
+     "Turn Off": 2.8
+    },
+    "threshold": 0.23529411764705882
+   },
+   "0.3": {
+    "action": "Keep On",
+    "q": {
+     "Keep On": -1.0,
+     "Turn Off": -3.2
+    },
+    "threshold": 0.23529411764705882
+   },
+   "0.364": {
+    "action": "Keep On",
+    "q": {
+     "Keep On": -0.3599999999999999,
+     "Turn Off": -4.735999999999999
+    },
+    "threshold": 0.23529411764705882
+   },
+   "0.5": {
+    "action": "Keep On",
+    "q": {
+     "Keep On": 1.0,
+     "Turn Off": -8.0
+    },
+    "threshold": 0.23529411764705882
+   },
+   "0.95": {
+    "action": "Keep On",
+    "q": {
+     "Keep On": 5.499999999999999,
+     "Turn Off": -18.8
+    },
+    "threshold": 0.23529411764705882
+   }
+  },
+  "day": {
+   "best": 8,
+   "planned": 300.0,
+   "actual": 300.0,
+   "actions": [
+    "Keep On",
+    "Keep On",
+    "Keep On",
+    "Keep On",
+    "Keep On",
+    "Keep On",
+    "Keep On",
+    "Keep On"
+   ]
+  },
+  "bonus_best": 692.2
+ }
+]

@@ -1,0 +1,96 @@
+SMART DORM ENERGY SAVER · heater in a dorm room in Astana (toy model)
+Assumptions: heater 1.5 kW, electricity 25 tg/kWh → 37.5 tg per heating hour
+
+==========================================================================
+STEP 1 · HILL CLIMBING — choose the daily heating schedule
+==========================================================================
+Input: 5 schedules; cost = hours × 37.5 tg + discomfort penalty
+ Hours  Electricity  Discomfort   Total
+     4        150.0         400   550.0
+     6        225.0         200   425.0
+     8        300.0          90   390.0
+    10        375.0          40   415.0
+    12        450.0          20   470.0
+
+Start: 4 h, cost 550 tg
+Step 1: at 4 h (550); neighbours: 6 h = 425
+        → move to 6 h (better)
+Step 2: at 6 h (425); neighbours: 4 h = 550, 8 h = 390
+        → move to 8 h (better)
+Step 3: at 8 h (390); neighbours: 6 h = 425, 10 h = 415
+        → no neighbour is better: STOP (local optimum)
+
+Output: best schedule = 8 h/day, cost 390.0 tg; path 4 → 6 → 8
+Heating hours: 06:00, 07:00, 17:00, 18:00, 19:00, 20:00, 21:00, 22:00
+Why: hill climbing moves to a better neighbouring schedule until no neighbour improves the cost.
+
+==========================================================================
+STEP 2 · BAYES — is the student home?  (18:00 is planned ON, sensor: no motion for 30 min)
+==========================================================================
+Observation: no motion
+  Prior       P(Home) = 0.60   P(Empty) = 0.40
+  Likelihood  P(no motion | Home) = 0.30   P(no motion | Empty) = 0.95
+  Joint       0.30×0.60 = 0.180    0.95×0.40 = 0.380
+  Evidence    P(no motion) = 0.180 + 0.380 = 0.560
+  Posterior   P(Home | no motion) = 0.180 / 0.560 = 0.321
+Observation: motion
+  Prior       P(Home) = 0.60   P(Empty) = 0.40
+  Likelihood  P(motion | Home) = 0.70   P(motion | Empty) = 0.05
+  Joint       0.70×0.60 = 0.420    0.05×0.40 = 0.020
+  Evidence    P(motion) = 0.420 + 0.020 = 0.440
+  Posterior   P(Home | motion) = 0.420 / 0.440 = 0.955
+Why: Bayes' rule combines the usual habit (prior) with the new sensor evidence.
+
+==========================================================================
+STEP 3 · MDP — Keep On or Turn Off?
+==========================================================================
+States: Home, Empty   Actions: Keep On, Turn Off   γ = 0.9, V0 = 0 (one Bellman update)
+Reward table:             Home  Empty
+               Keep On       6     -4
+               Turn Off     -8      4
+
+Belief from Bayes (no motion): P(Home) = 0.321
+  Q(Keep On) = 0.321×(6 + γ·0) + 0.679×(-4 + γ·0) = -0.79
+  Q(Turn Off) = 0.321×(-8 + γ·0) + 0.679×(4 + γ·0) = +0.14
+  Decision → TURN OFF   (Keep On is better only when P(Home) > 0.364)
+
+Belief from Bayes (motion): P(Home) = 0.955
+  Q(Keep On) = 0.955×(6 + γ·0) + 0.045×(-4 + γ·0) = +5.55
+  Q(Turn Off) = 0.955×(-8 + γ·0) + 0.045×(4 + γ·0) = -7.45
+  Decision → KEEP ON   (Keep On is better only when P(Home) > 0.364)
+
+Why: the MDP picks the action with the highest expected reward under uncertainty.
+
+==========================================================================
+STEP 4 · ONE DAY — the 8-hour plan corrected every hour by Bayes + MDP
+==========================================================================
+  Hour  Sensor      P(Home)  Action
+   6:00  motion        0.955  Keep On
+   7:00  motion        0.955  Keep On
+  17:00  motion        0.955  Keep On
+  18:00  no motion     0.321  Turn Off
+  19:00  no motion     0.321  Turn Off
+  20:00  motion        0.955  Keep On
+  21:00  motion        0.955  Keep On
+  22:00  no motion     0.321  Turn Off
+
+Plan alone: 8 h × 37.5 tg = 300.0 tg
+With agent: 5 h × 37.5 tg = 187.5 tg
+Saved today: 112.5 tg (38%);  ≈ 3375 tg per month
+
+==========================================================================
+BONUS · HILL CLIMBING ON A REAL 24-HOUR SCHEDULE (2^24 ≈ 16.8 million options)
+==========================================================================
+  restart  1: 11 moves → local optimum   692.2
+  restart  2: 17 moves → local optimum   692.2
+  restart  3: 12 moves → local optimum   692.2
+  restart  4: 16 moves → local optimum   692.2
+  restart  5: 15 moves → local optimum   692.2
+  restart  6:  9 moves → local optimum   692.2
+  restart  7: 10 moves → local optimum   692.2
+  restart  8: 17 moves → local optimum   692.2
+  restart  9: 11 moves → local optimum   692.2
+  restart 10: 12 moves → local optimum   692.2
+  Best schedule: ████████··········██████   (00:00 … 23:00)
+  Best cost 692.2; local optima found: [692.2]
+  All restarts reached the same schedule → very likely the global optimum.
