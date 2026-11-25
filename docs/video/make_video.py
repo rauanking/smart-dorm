@@ -38,12 +38,12 @@ SEGMENTS = [
     ("mdp", "Step three is a Markov decision process. A cold student costs minus eight points, while heating an empty room costs minus four. "
             "Weighted by the belief from Bayes, turning off scores plus zero point one four, and keeping on scores minus zero point seven nine, so the agent turns the heater off. "
             "If I make a cold student cost minus twenty, the threshold drops, and the agent becomes more careful."),
-    ("day", "Now the whole day. For each planned hour, the sensor reading goes through Bayes and then the MDP. "
+    ("day", "Now the whole day. Every hour, the sensor reading goes through Bayes and then the MDP. "
             "On a typical day, the heater runs five hours instead of eight, saving thirty-eight percent, about three thousand four hundred tenge a month. "
-            "If the student is away all evening, it saves seventy-five percent. If the student is home all day, it saves nothing, which is exactly right."),
+            "If the student is away all evening, it saves seventy-five percent. And if the student is home for twelve hours, it switches the heater on outside the plan and heats all twelve."),
     ("bonus", "As a bonus, hill climbing plans all twenty-four hours, which is about sixteen million possible schedules. "
               "Ten random restarts protect against local optima."),
-    ("outro", "The project has eleven unit tests, and one hundred eighty-six checks that the web app matches the Python code. "
+    ("outro", "The project has thirteen unit tests, and one hundred ninety-eight checks that the web app matches the Python code. "
               "The code and the live demo are on GitHub. Thank you."),
 ]
 
@@ -63,12 +63,12 @@ SUBS = {
     "mdp": ["Step 3 is a Markov decision process.", "A cold student costs −8 points, heating an empty room costs −4.",
             "Weighted by the belief from Bayes: Turn Off +0.14, Keep On −0.79, so the agent turns the heater off.",
             "If a cold student costs −20, the threshold drops, and the agent becomes more careful."],
-    "day": ["Now the whole day.", "For each planned hour, the sensor reading goes through Bayes and then the MDP.",
+    "day": ["Now the whole day.", "Every hour, the sensor reading goes through Bayes and then the MDP.",
             "Typical day: 5 heating hours instead of 8, 38% saved, about 3 400 tg a month.",
-            "Away all evening: 75% saved.", "Home all day: nothing saved, which is exactly right."],
+            "Away all evening: 75% saved.", "Home 12 hours: it turns the heater on outside the plan and heats all 12."],
     "bonus": ["Bonus: hill climbing plans all 24 hours, about 16 million possible schedules.",
               "Ten random restarts protect against local optima."],
-    "outro": ["11 unit tests, and 186 checks that the web app matches the Python code.",
+    "outro": ["13 unit tests, and 198 checks that the web app matches the Python code.",
               "The code and the live demo are on GitHub. Thank you."],
 }
 
@@ -131,7 +131,7 @@ with sync_playwright() as p:
         pg.fill("#rHO", str(v)); pg.dispatch_event("#rHO", "input")
     seg("mdp", [(0.0, lambda: focus("#h3t")), (0.78, lambda: set_cold(-20)), (0.99, lambda: set_cold(-8))])
     seg("day", [(0.0, lambda: (focus("#h4t"), scroll(y_day))), (0.71, lambda: pg.click("#pAway")),
-                (0.86, lambda: pg.click("#pHome")), (0.995, lambda: pg.click("#pTypical"))])
+                (0.84, lambda: pg.click("#pHome12")), (0.995, lambda: pg.click("#pTypical"))])
     seg("bonus", [(0.0, lambda: (focus("#h5t"), scroll(y_bonus))), (0.55, lambda: pg.click("#bonusRun"))])
     seg("outro", [(0.0, lambda: (focus(None), scroll(0)))])
     pg.wait_for_timeout(1000)

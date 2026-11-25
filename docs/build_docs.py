@@ -123,7 +123,7 @@ d.add_paragraph(
     "Bayesian inference turns a noisy motion-sensor reading into the probability that the student is home. "
     "A Markov decision process (one Bellman update) uses that probability to keep the heater on or turn it off. "
     "On a simulated winter day the agent heats for 5 hours instead of the planned 8, which lowers the cost from 300 tg to 187.5 tg (38% saved). "
-    "The project includes a Python reference implementation, an interactive web application, 11 unit tests and 186 automatic checks that the web application matches the Python code.")
+    "The project includes a Python reference implementation, an interactive web application, 13 unit tests and 198 automatic checks that the web application matches the Python code.")
 
 d.add_heading("1. Problem statement", 1)
 d.add_paragraph(
@@ -153,7 +153,7 @@ table(d, ["Step", "Algorithm (course topic)", "Input", "Output"], [
     ["1", "Hill climbing (search / local search)", "5 schedules, cost function", "Plan: heat 8 h/day (06–07, 17–22)"],
     ["2", "Bayes' rule (probabilistic reasoning)", "Prior, sensor model, sensor reading", "P(Home | no motion) = 0.321"],
     ["3", "MDP, one Bellman update (sequential decisions)", "Belief from step 2, rewards", "Turn Off (Q = +0.14 vs −0.79)"],
-    ["4", "Day simulation", "Plan from step 1, hourly sensor readings", "5 h of heating, 112.5 tg saved"],
+    ["4", "Day simulation (all 24 hours)", "Plan from step 1, hourly sensor readings", "5 h of heating, 112.5 tg saved"],
 ], widths=[1.2, 5, 4.6, 5.2])
 figure(d, os.path.join(ROOT, "smart_dorm_overview.png"), "Figure 1. The three algorithms with default settings: hill-climbing path, Bayes posteriors and MDP Q-values.")
 
@@ -203,7 +203,10 @@ d.add_paragraph("With b(Home) = 0.321: Q(Keep On) = 0.321·6 + 0.679·(−4) = �
                 "because freezing the student is penalised more than wasting energy.")
 
 d.add_heading("7. Integration: one simulated day", 1)
-d.add_paragraph("For every hour of the 8-hour plan, the sensor reading goes through Bayes and then the MDP. The table shows the default day.")
+d.add_paragraph("The agent runs every hour of the day. Inside the 8-hour plan the prior P(Home) is 0.6; outside the plan the student is usually away, so the prior is 0.3. "
+                "Each sensor reading goes through Bayes and then the MDP. Inside the plan the agent switches the heater off when the room is probably empty; "
+                "outside the plan it switches the heater on when it sees the student (with motion, P(Home) = 0.21 / 0.245 = 0.857, so Keep On wins). "
+                "The table shows the planned hours of the default day; all other hours have no motion and stay off.")
 table(d, ["Hour", "Sensor", "P(Home)", "Action"], [
     ["06:00", "motion", "0.955", "Keep On"], ["07:00", "motion", "0.955", "Keep On"], ["17:00", "motion", "0.955", "Keep On"],
     ["18:00", "no motion", "0.321", "Turn Off"], ["19:00", "no motion", "0.321", "Turn Off"], ["20:00", "motion", "0.955", "Keep On"],
@@ -230,7 +233,7 @@ bullets(d, [
     ("Plan the day: ", "choose a starting schedule and watch hill climbing move along the cost curve step by step."),
     ("Is the student home?: ", "switch the sensor reading and move sliders for the prior and the sensor accuracy; every step of Bayes' rule is printed."),
     ("Keep on or turn off?: ", "edit the reward table and see the Q-values, the decision and the threshold update immediately."),
-    ("One winter day: ", "presets (typical day, away all evening, home all day), or click any hour to flip its sensor reading; shows the cost and savings."),
+    ("One winter day: ", "all 24 hours; presets (typical day, away all evening, home 12 hours, home all day), or click any hour to flip its sensor reading; shows the cost, savings or extra comfort heating."),
     ("Bonus: ", "run 10 random restarts of 24-hour hill climbing."),
 ])
 figure(d, os.path.join(HERE, "app_screenshot.png"), "Figure 2. Web application: the three algorithm panels.")
@@ -242,28 +245,31 @@ table(d, ["Test", "What it checks", "Result"], [
     ["Bayes posteriors", "0.321 for no motion, 0.955 for motion; P(Home) + P(Empty) = 1", "Pass"],
     ["MDP decisions", "Turn Off for no motion, Keep On for motion", "Pass"],
     ["MDP threshold", "Threshold = 8/22; decision flips just above and below it", "Pass"],
-    ["Day simulation", "Planned 300 tg, actual 187.5 tg, 8 rows", "Pass"],
+    ["Day simulation", "Planned 300 tg, actual 187.5 tg, 24 rows", "Pass"],
+    ["Heating outside the plan", "Student home 10-22: heater on exactly those 12 hours", "Pass"],
+    ["No motion outside the plan", "With no motion all day, the heater stays off every hour", "Pass"],
     ["24-hour bonus", "Valid 24-hour schedule, best cost among restarts", "Pass"],
-    ["Consistency (186 checks)", "Web app equals Python for 6 parameter sets", "Pass"],
+    ["Consistency (198 checks)", "Web app equals Python for 6 parameter sets", "Pass"],
     ["User-interface check", "Every button, slider, preset and hour toggle; phone width without horizontal scroll; no console errors", "Pass"],
 ], widths=[4.5, 8.5, 2])
 d.add_paragraph("The consistency test found one real bug. In the Python function bayes_home, the default prior was fixed when the function was defined, "
-                "so changing the prior setting had no effect. The function now reads the setting at call time, and all 11 unit tests and 186 consistency checks pass.")
+                "so changing the prior setting had no effect. The function now reads the setting at call time, and all 13 unit tests and 198 consistency checks pass.")
 
 d.add_heading("11. Results", 1)
 table(d, ["Scenario", "Plan alone", "With the agent", "Saved"], [
     ["Typical day (default sensor log)", "300 tg (8 h)", "187.5 tg (5 h)", "112.5 tg (38%)"],
     ["Student away all evening", "300 tg (8 h)", "75 tg (2 h)", "225 tg (75%)"],
-    ["Student home all day", "300 tg (8 h)", "300 tg (8 h)", "0 tg (0%)"],
+    ["Student home 12 hours (10-22)", "300 tg (8 h)", "450 tg (12 h)", "+150 tg extra comfort"],
+    ["Student home all day", "300 tg (8 h)", "900 tg (24 h)", "+600 tg extra comfort"],
 ], widths=[6, 3.3, 3.5, 3.2])
-d.add_paragraph("The agent saves money when the room is empty and does not switch the heater off when the student is clearly home, which is the intended behaviour. "
+d.add_paragraph("The agent saves money when the room is empty, and it heats outside the plan when the student is at home, so it follows the real student instead of a fixed timetable. "
                 "Sensitivity: if the penalty for a cold student rises from −8 to −20, the threshold drops from 36.4% to 23.5%, and the agent becomes more cautious.")
 
 d.add_heading("12. Limitations and future work", 1)
 bullets(d, [
     "All numbers are hypothetical toy-model assumptions, as the project guidelines allow. Real values would come from a smart meter and a sensor log.",
     "One motion sensor and one prior. A prior per hour of the day and more sensors (door, Wi-Fi presence) combined with Naive Bayes would make the belief more accurate.",
-    "One Bellman update without room temperature. Full value iteration with heating dynamics would let the agent pre-heat the room before the student returns.",
+    "The plan comes from average costs, not from one student's habits; a prior learned per hour would fit each student better. One Bellman update without room temperature. Full value iteration with heating dynamics would let the agent pre-heat the room before the student returns.",
     "The next step is a real ESP32 motion sensor and smart plug in a dorm room. This would suit a later IoT or embedded-systems course.",
 ])
 
@@ -305,8 +311,8 @@ bullets(d, [
 ])
 d.add_heading("How the work was verified", 2)
 bullets(d, [
-    "Every number in the report was recomputed by the code; 11 unit tests pass.",
-    "186 automatic checks confirm that the web application gives the same results as the Python code for 6 parameter sets. This test found and fixed one bug.",
+    "Every number in the report was recomputed by the code; 13 unit tests pass.",
+    "198 automatic checks confirm that the web application gives the same results as the Python code for 6 parameter sets. This test found and fixed one bug.",
     "The user interface was tested by script (every button, slider and preset, phone width) with no console errors.",
     "Definitions follow Russell & Norvig, Artificial Intelligence: A Modern Approach, and the course lectures.",
 ])

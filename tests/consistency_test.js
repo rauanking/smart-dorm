@@ -34,6 +34,10 @@ ref.forEach((r, n) => {
   const day = SD.simulateDay(P, P.hoursOf[best]);
   check(best === r.day.best && close(day.planned, r.day.planned) && close(day.actual, r.day.actual), `case ${n} day totals`);
   check(JSON.stringify(day.rows.map((x) => x.action)) === JSON.stringify(r.day.actions), `case ${n} day actions`);
+  const home12 = {}; for (let h = 10; h < 22; h++) home12[h] = true;
+  const d12 = SD.simulateDay(P, P.hoursOf[best], home12);
+  check(close(d12.actual, r.day.home12_actual), `case ${n} home-12h total`);
+  check(JSON.stringify(d12.rows.map((x) => x.action)) === JSON.stringify(r.day.home12_actions), `case ${n} home-12h actions`);
   check(Math.abs(SD.bonusHillClimbing(P).bestCost - r.bonus_best) < 1e-6, `case ${n} bonus optimum`);
 });
 console.log(`${checks - fails}/${checks} checks passed (${ref.length} parameter sets)`);

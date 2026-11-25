@@ -22,13 +22,14 @@
       10: [6, 7, 8, 16, 17, 18, 19, 20, 21, 22],
       12: [5, 6, 7, 8, 15, 16, 17, 18, 19, 20, 21, 22],
     },
-    prior: 0.6,                                   // P(Home) during heating hours
+    prior: 0.6,                                   // P(Home) during planned heating hours
+    priorOffPlan: 0.3,                            // P(Home) outside the plan (student usually away)
     pNoMotionHome: 0.3,                           // P(no motion | Home)
     pNoMotionEmpty: 0.95,                         // P(no motion | Empty)
     reward: { homeKeep: 6, emptyKeep: -4, homeOff: -8, emptyOff: 4 },
     transition: { Home: { Home: 0.8, Empty: 0.2 }, Empty: { Home: 0.3, Empty: 0.7 } },
     gamma: 0.9,
-    sensorDay: { 5: true, 6: true, 7: true, 8: false, 15: false, 16: false, 17: true, 18: false,
+    sensorDay: { 6: true, 7: true, 8: false, 15: false, 16: false, 17: true, 18: false,
                  19: false, 20: true, 21: true, 22: false },
     // bonus: 24-hour schedule
     outsideCold: [].concat(Array(6).fill(1.0), Array(6).fill(0.8), Array(6).fill(0.6), Array(6).fill(0.9)),
@@ -108,12 +109,16 @@
   }
 
   // ------------------------------------------------------------ 4. day simulation
+  /** Every hour of the day: sensor → Bayes → MDP. Outside the plan the prior is lower, and the
+   *  agent can switch the heater ON when it sees the student. Unlisted hours = no motion. */
   function simulateDay(P, hours, sensor = P.sensorDay) {
-    const rows = hours.map((h) => {
-      const motion = h in sensor ? sensor[h] : true;
-      const p = bayes(P, motion).posterior;
-      return { hour: h, motion, pHome: p, action: mdp(P, p).action };
-    });
+    const rows = [];
+    for (let h = 0; h < 24; h++) {
+      const planned = hours.includes(h);
+      const motion = h in sensor ? sensor[h] : false;
+      const p = bayes(P, motion, planned ? P.prior : P.priorOffPlan).posterior;
+      rows.push({ hour: h, planned, motion, pHome: p, action: mdp(P, p).action });
+    }
     const onHours = rows.filter((r) => r.action === "Keep On").length;
     const planned = hours.length * costPerHour(P);
     const actual = onHours * costPerHour(P);

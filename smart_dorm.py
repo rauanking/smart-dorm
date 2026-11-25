@@ -133,29 +133,42 @@ def mdp_decide(p_home):
 
 # ================================================================= 4. DAY SIMULATION
 # hypothetical motion-sensor readings for one winter day (True = motion seen)
-SENSOR_DAY = {5: True, 6: True, 7: True, 8: False, 15: False, 16: False, 17: True, 18: False,
+# hours not listed = no motion
+SENSOR_DAY = {6: True, 7: True, 8: False, 15: False, 16: False, 17: True, 18: False,
               19: False, 20: True, 21: True, 22: False}
+# outside the plan the student is usually away, so the prior is lower
+PRIOR_OFF_PLAN = 0.30
 
 
-def simulate_day(hours, verbose=True):
-    """For each planned heating hour: sensor → Bayes → MDP → action. Returns cost with and without the agent."""
+def simulate_day(hours, verbose=True, sensor=None):
+    """Every hour of the day: sensor → Bayes → MDP → heater On (Keep On) or Off (Turn Off).
+    Inside the plan the prior is PRIOR_HOME; outside it is PRIOR_OFF_PLAN, so the agent can also
+    switch the heater ON outside the plan when it sees the student. Returns plan cost, agent cost, rows."""
+    sensor = SENSOR_DAY if sensor is None else sensor
     rows, on_hours = [], 0
-    for h in hours:
-        motion = SENSOR_DAY.get(h, True)
-        p = bayes_home(motion)["posterior"]
+    for h in range(24):
+        planned = h in hours
+        motion = sensor.get(h, False)
+        p = bayes_home(motion, PRIOR_HOME if planned else PRIOR_OFF_PLAN)["posterior"]
         action, q, _, _ = mdp_decide(p)
         on_hours += action == "Keep On"
-        rows.append((h, motion, p, action))
-    planned = len(hours) * COST_PER_HOUR
+        rows.append((h, planned, motion, p, action))
+    planned_cost = len(hours) * COST_PER_HOUR
     actual = on_hours * COST_PER_HOUR
     if verbose:
-        print(f"{'Hour':>6s}  {'Sensor':10s} {'P(Home)':>8s}  Action")
-        for h, m, p, a in rows:
-            print(f"{h:4d}:00  {'motion' if m else 'no motion':10s} {p:8.3f}  {a}")
-        print(f"\nPlan alone: {len(hours)} h × {COST_PER_HOUR:.1f} tg = {planned:.1f} tg")
+        print(f"{'Hour':>6s}  {'In plan':8s}{'Sensor':10s} {'P(Home)':>8s}  Heater")
+        for h, pl, m, p, a in rows:
+            if pl or a == "Keep On":
+                print(f"{h:4d}:00  {'yes' if pl else 'NO':8s}{'motion' if m else 'no motion':10s} {p:8.3f}  {'ON' if a == 'Keep On' else 'off'}")
+        print("(hours outside the plan with no motion stay off)")
+        print(f"\nPlan alone: {len(hours)} h × {COST_PER_HOUR:.1f} tg = {planned_cost:.1f} tg")
         print(f"With agent: {on_hours} h × {COST_PER_HOUR:.1f} tg = {actual:.1f} tg")
-        print(f"Saved today: {planned - actual:.1f} tg ({(planned - actual) / planned:.0%});  ≈ {(planned - actual) * 30:.0f} tg per month")
-    return planned, actual, rows
+        diff = planned_cost - actual
+        if diff >= 0:
+            print(f"Saved today: {diff:.1f} tg ({diff / planned_cost:.0%});  ≈ {diff * 30:.0f} tg per month")
+        else:
+            print(f"Extra heating for comfort: {-diff:.1f} tg (the student was home outside the plan)")
+    return planned_cost, actual, rows
 
 
 # ================================================================= BONUS: 24-hour schedule

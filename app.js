@@ -115,7 +115,8 @@
   // ------------------------------------------------------------ 4. day simulation
   const PRESETS = {
     pTypical: () => ({ ...P.sensorDay }),
-    pAway: () => { const s = {}; for (let h = 0; h < 24; h++) s[h] = h < 9; return s; },
+    pAway: () => ({ 6: true, 7: true }),
+    pHome12: () => { const s = {}; for (let h = 10; h < 22; h++) s[h] = true; return s; },
     pHome: () => { const s = {}; for (let h = 0; h < 24; h++) s[h] = true; return s; },
   };
   Object.keys(PRESETS).forEach((id) => $(id).addEventListener("click", () => { state.sensor = PRESETS[id](); renderDay(); }));
@@ -123,26 +124,31 @@
   function renderDay() {
     const best = SD.hillClimbing(P).best, plan = P.hoursOf[best];
     const day = SD.simulateDay(P, plan, state.sensor);
-    const byHour = Object.fromEntries(day.rows.map((r) => [r.hour, r]));
     let cells = "";
-    for (let h = 0; h < 24; h++) {
-      const r = byHour[h], motion = h in state.sensor ? state.sensor[h] : true;
-      const cls = r ? (r.action === "Keep On" ? "on" : "off") : "";
-      const label = `${hh(h)}, ${motion ? "motion" : "no motion"}${r ? ", " + r.action : ", not planned"}. Click to flip the sensor.`;
-      cells += `<button class="hour ${cls}" data-h="${h}" aria-label="${label}" title="${label}"><span>${h}</span><span class="st"></span><span class="sn">${motion ? "●" : "○"}</span></button>`;
-    }
+    day.rows.forEach((r) => {
+      const on = r.action === "Keep On";
+      const cls = [on ? "on" : r.planned ? "off" : "", r.planned ? "plan" : "", on && !r.planned ? "extra" : ""].join(" ");
+      const label = `${hh(r.hour)}, ${r.planned ? "in plan" : "outside plan"}, ${r.motion ? "motion" : "no motion"}, heater ${on ? "on" : "off"}. Click to flip the sensor.`;
+      cells += `<button class="hour ${cls}" data-h="${r.hour}" aria-label="${label}" title="${label}"><span class="hn">${r.hour}</span><span class="st"></span><span class="sn">${r.motion ? "●" : "○"}</span></button>`;
+    });
     $("hours").innerHTML = cells;
     $("hours").querySelectorAll(".hour").forEach((el) => el.addEventListener("click", () => {
-      const h = +el.dataset.h; const cur = h in state.sensor ? state.sensor[h] : true;
+      const h = +el.dataset.h; const cur = h in state.sensor ? state.sensor[h] : false;
       state.sensor = { ...state.sensor, [h]: !cur }; renderDay();
     }));
+    const extra = day.rows.filter((r) => r.action === "Keep On" && !r.planned).length;
+    const diff = day.saved;
     $("tiles").innerHTML =
       `<div class="tile"><b>${best} h</b><span>plan from hill climbing</span></div>` +
       `<div class="tile"><b>${tg(day.planned)}</b><span>plan alone (${plan.length} h)</span></div>` +
-      `<div class="tile"><b>${tg(day.actual)}</b><span>with the agent (${day.onHours} h)</span></div>` +
-      `<div class="tile save"><b>${tg(day.saved)}</b><span>saved today${day.planned ? " (" + Math.round((day.saved / day.planned) * 100) + "%)" : ""} · ≈ ${tg(day.saved * 30)} per month</span></div>`;
-    $("dayTable").innerHTML = `<thead><tr><th>Hour</th><th>Sensor</th><th class="n">P(Home)</th><th class="n">Q(Keep On)</th><th class="n">Q(Turn Off)</th><th>Action</th></tr></thead><tbody>` +
-      day.rows.map((r) => { const m = SD.mdp(P, r.pHome); return `<tr><td>${hh(r.hour)}</td><td>${r.motion ? "motion" : "no motion"}</td><td class="n">${f3(r.pHome)}</td><td class="n">${f2(m.q["Keep On"])}</td><td class="n">${f2(m.q["Turn Off"])}</td><td><b style="color:${r.action === "Keep On" ? "var(--heat)" : "var(--cold)"}">${r.action}</b></td></tr>`; }).join("") + "</tbody>";
+      `<div class="tile"><b>${tg(day.actual)}</b><span>with the agent (${day.onHours} h${extra ? `, ${extra} outside the plan` : ""})</span></div>` +
+      (diff >= 0
+        ? `<div class="tile save"><b>${tg(diff)}</b><span>saved today${day.planned ? " (" + Math.round((diff / day.planned) * 100) + "%)" : ""} · ≈ ${tg(diff * 30)} per month</span></div>`
+        : `<div class="tile warm"><b>+${tg(-diff)}</b><span>extra heating: the student was home outside the plan</span></div>`);
+    const shown = day.rows.filter((r) => r.planned || r.action === "Keep On");
+    $("dayTable").innerHTML = `<thead><tr><th>Hour</th><th>In plan</th><th>Sensor</th><th class="n">Prior</th><th class="n">P(Home)</th><th class="n">Q(On)</th><th class="n">Q(Off)</th><th>Heater</th></tr></thead><tbody>` +
+      shown.map((r) => { const m = SD.mdp(P, r.pHome); const on = r.action === "Keep On"; return `<tr><td>${hh(r.hour)}</td><td>${r.planned ? "yes" : "<b>no</b>"}</td><td>${r.motion ? "motion" : "no motion"}</td><td class="n">${f2(r.planned ? P.prior : P.priorOffPlan)}</td><td class="n">${f3(r.pHome)}</td><td class="n">${f2(m.q["Keep On"])}</td><td class="n">${f2(m.q["Turn Off"])}</td><td><b style="color:${on ? "var(--heat)" : "var(--cold)"}">${on ? (r.planned ? "On" : "Turned ON") : "Turned off"}</b></td></tr>`; }).join("") +
+      `</tbody>` + (day.rows.length > shown.length ? `<caption style="caption-side:bottom;text-align:left;padding-top:6px;color:var(--muted);font-size:13px">Other hours: outside the plan and no motion, so the heater stays off.</caption>` : "");
   }
 
   // ------------------------------------------------------------ bonus

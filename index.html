@@ -79,6 +79,9 @@ svg text { fill: var(--muted); font: 12px var(--mono); }
 .hour.off .st { background: var(--cold); }
 .hour .sn { font-size: 13px; line-height: 1; }
 .hour:hover { border-color: var(--ink); }
+.hour.plan .hn { color: var(--ink); font-weight: 600; text-decoration: underline; text-decoration-color: var(--heat); text-decoration-thickness: 2px; }
+.hour.extra .st { outline: 2px dashed var(--ink); outline-offset: 1px; }
+.tile.warm b { color: var(--heat); }
 .legend { display: flex; flex-wrap: wrap; gap: 14px; font-size: 13px; color: var(--muted); }
 .legend i { display: inline-block; width: 12px; height: 12px; border-radius: 3px; vertical-align: -1px; margin-right: 5px; }
 .tiles { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 10px; }
@@ -161,14 +164,15 @@ footer { color: var(--muted); font-size: 13px; }
 <!-- 4. DAY -->
 <section class="card wide" aria-labelledby="h4t">
   <h2 id="h4t"><span class="num">4</span>One winter day <span class="tag">plan + Bayes + MDP every hour</span></h2>
-  <p class="why">Coloured hours are in the hill-climbing plan. For each one, the sensor reading goes through Bayes and the MDP. Click an hour to flip its sensor reading.</p>
+  <p class="why">Every hour, the sensor reading goes through Bayes and the MDP. Inside the plan (underlined hours) the prior is 0.6, so the agent switches the heater off when the room is probably empty. Outside the plan the prior is 0.3, but if it sees the student it switches the heater on. Click an hour to flip its sensor reading.</p>
   <div class="row" role="group" aria-label="Day presets">
     <button id="pTypical">Typical day</button>
     <button id="pAway">Away all evening</button>
+    <button id="pHome12">Home 12 h (10–22)</button>
     <button id="pHome">Home all day</button>
   </div>
   <div class="hours" id="hours"></div>
-  <div class="legend"><span><i style="background:var(--heat)"></i>heater on</span><span><i style="background:var(--cold)"></i>agent turned it off</span><span><i style="background:var(--idle)"></i>not in plan</span><span>● motion &nbsp;○ no motion</span></div>
+  <div class="legend"><span><i style="background:var(--heat)"></i>heater on</span><span><i style="background:var(--heat);outline:2px dashed var(--ink);outline-offset:1px"></i>turned on outside the plan</span><span><i style="background:var(--cold)"></i>plan hour, agent turned it off</span><span><i style="background:var(--idle)"></i>off</span><span><u>12</u> in plan</span><span>● motion &nbsp;○ no motion</span></div>
   <div class="tiles" id="tiles"></div>
   <div class="scroll"><table id="dayTable"></table></div>
 </section>

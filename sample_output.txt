@@ -64,15 +64,16 @@ Why: the MDP picks the action with the highest expected reward under uncertainty
 ==========================================================================
 STEP 4 · ONE DAY — the 8-hour plan corrected every hour by Bayes + MDP
 ==========================================================================
-  Hour  Sensor      P(Home)  Action
-   6:00  motion        0.955  Keep On
-   7:00  motion        0.955  Keep On
-  17:00  motion        0.955  Keep On
-  18:00  no motion     0.321  Turn Off
-  19:00  no motion     0.321  Turn Off
-  20:00  motion        0.955  Keep On
-  21:00  motion        0.955  Keep On
-  22:00  no motion     0.321  Turn Off
+  Hour  In plan Sensor      P(Home)  Heater
+   6:00  yes     motion        0.955  ON
+   7:00  yes     motion        0.955  ON
+  17:00  yes     motion        0.955  ON
+  18:00  yes     no motion     0.321  off
+  19:00  yes     no motion     0.321  off
+  20:00  yes     motion        0.955  ON
+  21:00  yes     motion        0.955  ON
+  22:00  yes     no motion     0.321  off
+(hours outside the plan with no motion stay off)
 
 Plan alone: 8 h × 37.5 tg = 300.0 tg
 With agent: 5 h × 37.5 tg = 187.5 tg

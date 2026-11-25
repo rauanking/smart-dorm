@@ -29,9 +29,10 @@ for case in CASES:
         mdp[str(p)] = {"action": a, "q": q, "threshold": thr}
     best = sd.hill_climbing(verbose=False)[0]
     planned, actual, rows = sd.simulate_day(sd.HOURS_OF[best], verbose=False)
+    p12, a12, r12 = sd.simulate_day(sd.HOURS_OF[best], verbose=False, sensor={h: True for h in range(10, 22)})
     out.append({"case": {k: (v if k != "DISCOMFORT" else {str(a): b for a, b in v.items()}) for k, v in case.items()},
                 "hill": hc, "bayes": bay, "mdp": mdp,
-                "day": {"best": best, "planned": planned, "actual": actual, "actions": [r[3] for r in rows]},
+                "day": {"best": best, "planned": planned, "actual": actual, "actions": [r[4] for r in rows], "home12_actual": a12, "home12_actions": [r[4] for r in r12]},
                 "bonus_best": round(sd.bonus_hill_climbing()[1], 6)})
 json.dump(out, open(os.path.join(os.path.dirname(__file__), "reference.json"), "w"), indent=1)
 print(len(out), "cases")

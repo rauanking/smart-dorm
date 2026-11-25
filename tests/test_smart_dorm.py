@@ -58,7 +58,20 @@ def test_mdp_threshold():
 # ---- Whole pipeline
 def test_day_saves_money():
     planned, actual, rows = sd.simulate_day(sd.HOURS_OF[8], verbose=False)
-    assert planned == 300 and actual == 187.5 and len(rows) == 8
+    assert planned == 300 and actual == 187.5 and len(rows) == 24
+
+
+def test_heats_outside_plan_when_student_is_home():
+    home_12h = {h: True for h in range(10, 22)}                      # home 10:00-22:00
+    planned, actual, rows = sd.simulate_day(sd.HOURS_OF[8], verbose=False, sensor=home_12h)
+    on = [h for h, pl, m, p, a in rows if a == "Keep On"]
+    assert on == list(range(10, 22))                                   # heats exactly the 12 hours at home
+    assert actual == 12 * sd.COST_PER_HOUR and planned == 300
+
+
+def test_stays_off_outside_plan_without_motion():
+    _, _, rows = sd.simulate_day(sd.HOURS_OF[8], verbose=False, sensor={})
+    assert all(a == "Turn Off" for h, pl, m, p, a in rows)
 
 
 def test_bonus_finds_valid_schedule():
